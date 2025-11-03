@@ -8,6 +8,7 @@
 #include "Renderer.h"
 #include "TextureStreamer.h"
 #include "Input.h"
+#include "AIEnemy.h"
 
 int main(int argc, char const *argv[]) {
 
@@ -23,6 +24,8 @@ int main(int argc, char const *argv[]) {
 
         auto input = std::make_unique<Input>(renderer_ptr.get(), game_field_ptr.get());
 
+        auto ai_enemy = std::make_unique<AIEnemy>(input.get(), game_field_ptr.get());
+
         while (window.isOpen()) {
                 while (const std::optional event = window.pollEvent()) {
                         if (event->is<sf::Event::Closed>()) {
@@ -31,6 +34,8 @@ int main(int argc, char const *argv[]) {
                                 input->OnMouseLeftClicked(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
                         }
                 }
+
+                ai_enemy->Update();
 
                 renderer_ptr->Render();
         }

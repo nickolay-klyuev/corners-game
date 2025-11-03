@@ -83,9 +83,10 @@ Renderer::Renderer(GameField<>* gameField_ptr, sf::RenderWindow* window_ptr)
 
 void Renderer::Render() {
         _window_ptr->clear();
+        
+        const auto& data = _gameField_ptr->GetData();
 
         if (_gameField_ptr->IsDirtyFlag) {
-                const auto& data = _gameField_ptr->GetData();
                 
                 for (int i = 0; i < data.size(); ++i) {
                         for (int j = 0; j < data[i].size(); ++j) {
@@ -113,6 +114,33 @@ void Renderer::Render() {
                 }
 
                 _gameField_ptr->IsDirtyFlag = false;
+        }
+
+        if (_gameField_ptr->IsPawnsDirtyFlag) {
+                _gameField_ptr->IsPawnsDirtyFlag = false;
+
+                _renderingPawnMap.clear();
+
+                for (int i = 0; i < data.size(); ++i) {
+                        for (int j = 0; j < data[i].size(); ++j) {
+                                if (data[i][j] == 1 || data[i][j] == 2 || data[i][j] == 4 || data[i][j] == 5) {
+                                        sf::Sprite new_sprite(_textureStreamer.Get(TextureStreamer::TextureType::BlackPawn));
+
+                                        if (data[i][j] == 1 || data[i][j] == 4) {
+                                                new_sprite.setTexture(_textureStreamer.Get(TextureStreamer::TextureType::WhitePawn));
+                                                //sf::Sprite pawn_sprite(_textureStreamer.Get(TextureStreamer::TextureType::WhitePawn));
+                                        } 
+
+                                        auto size = new_sprite.getLocalBounds().size;
+                                        new_sprite.setScale({ 50.f / size.x, 50.f / size.y });
+                                        new_sprite.setPosition({ 55.f * i, 55.f * j });
+
+                                        _renderingPawnSprites.push_back(new_sprite);
+                                        _renderingPawnMap.insert({{i, j}, new_sprite});
+                                }
+                        }
+                }
+
         }
 
         /*for (const auto& slot_sprite : _renderingSlotSprites) {

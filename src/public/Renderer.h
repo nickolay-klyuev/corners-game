@@ -21,6 +21,8 @@ class Renderer {
         std::map<std::pair<int, int>, sf::Sprite> _renderingSlotMap;
         std::map<std::pair<int, int>, sf::Sprite> _renderingPawnMap;
 
+        std::map<std::pair<int, int>, sf::Sprite> _renderSprites;
+
 public:
         Renderer() = delete;
         Renderer(GameField<>* gameField_ptr, sf::RenderWindow* window_ptr);
@@ -46,5 +48,13 @@ public:
 
         auto GetRenderingPawnMap() const -> const std::map<std::pair<int, int>, sf::Sprite>& {
                 return _renderingPawnMap;
+        }
+
+        auto GetRenderingSlotMap() const -> const std::map<std::pair<int, int>, sf::Sprite>& {
+                return _renderingSlotMap;
+        }
+
+        auto GetRenderSprites() const -> const std::map<std::pair<int, int>, sf::Sprite>& {
+                return _renderSprites;
         }
 };
