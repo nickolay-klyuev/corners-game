@@ -23,3 +23,5 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
+
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})

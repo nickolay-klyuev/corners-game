@@ -2,83 +2,37 @@
 
 #include <iostream>
 
-Renderer::Renderer(GameField<>* gameField_ptr, sf::RenderWindow* window_ptr)
+Renderer::Renderer(GameField* gameField_ptr, sf::RenderWindow* window_ptr)
         : _gameField_ptr(gameField_ptr), _window_ptr(window_ptr) {
-        /*for (int i = 0; i < slots.size(); ++i) {
-                for (int j = 0; j < slots[i].size(); ++j) {
-                        sf::Sprite slotSprite(streamer_ptr->Get(TextureStreamer::TextureType::BlackSlot));
-                        slotSprite.setPosition({ 100.f * i, 100.f * j });
-                        slotSprite.setScale({ 0.4f, 0.4f });
-                        _sprites.push_back(slotSprite);
-                }
-        }*/
-
         const auto& data = _gameField_ptr->GetData();
 
         for (int i = 0; i < data.size(); ++i) {
-                ChangeFlipFlopFlag();
+                reverseFlipFlopFlag();
 
                 for (int j = 0; j < data[i].size(); ++j) {
-                        sf::Sprite new_sprite(GetSlotTexture_FlipFlop());
+                        sf::Sprite new_sprite(getSlotTexture_FlipFlop());
 
-                        auto size = new_sprite.getLocalBounds().size;
-                        new_sprite.setScale({ 50.f / size.x, 50.f / size.y });
-                        new_sprite.setPosition({55.f * i, 55.f * j });
+                        auto sprite_size = new_sprite.getLocalBounds().size;
+                        new_sprite.setScale({ SlotSize / sprite_size.x, SlotSize / sprite_size.y });
+                        new_sprite.setPosition({SlotSizeWithPadding * i, SlotSizeWithPadding * j });
 
-                        _renderingSlotSprites.push_back(new_sprite);
                         _renderingSlotMap.insert({{i, j}, new_sprite});
 
-                        if (data[i][j] != 0) {
-                                if (data[i][j] == 1) {
-                                        new_sprite.setTexture(_textureStreamer.Get(TextureStreamer::TextureType::WhitePawn));
-                                        //sf::Sprite pawn_sprite(_textureStreamer.Get(TextureStreamer::TextureType::WhitePawn));
+                        if (data[i][j] != SlotType::Empty) {
+                                if (data[i][j] == SlotType::WhitePawn) {
+                                        new_sprite.setTexture(_textureStreamer[TextureType::WhitePawn]);
                                 } else {
-                                        //sf::Sprite pawn_sprite(_textureStreamer.Get(TextureStreamer::TextureType::BlackPawn));
-                                        new_sprite.setTexture(_textureStreamer.Get(TextureStreamer::TextureType::BlackPawn));
+                                        new_sprite.setTexture(_textureStreamer[TextureType::BlackPawn]);
                                 }
 
                                 auto size = new_sprite.getLocalBounds().size;
-                                new_sprite.setScale({ 50.f / size.x, 50.f / size.y });
-                                new_sprite.setPosition({ 55.f * i, 55.f * j });
+                                new_sprite.setScale({ SlotSize / size.x, SlotSize / size.y });
+                                new_sprite.setPosition({ SlotSizeWithPadding * i, SlotSizeWithPadding * j });
 
-                                _renderingPawnSprites.push_back(new_sprite);
                                 _renderingPawnMap.insert({{i, j}, new_sprite});
                         }
                 }
         }
-
-        /*const auto& slots = _gameField_ptr->GetSlots();
-
-        for (int i = 0; i < slots.size(); ++i) {
-                ChangeFlipFlopFlag();
-
-                for (int j = 0; j < slots[i].size(); ++j) {
-                        sf::Sprite new_sprite(GetSlotTexture_FlipFlop());
-
-                        auto size = new_sprite.getLocalBounds().size;
-                        new_sprite.setScale({ 50.f / size.x, 50.f / size.y });
-                        new_sprite.setPosition({55.f * i, 55.f * j });
-
-                        _renderingSlotSprites.push_back(new_sprite);
-
-                        if (const Pawn* pawn = slots[i][j].HoldingPawn_ptr) {
-                                if (pawn->Team == Pawn::TeamType::White) {
-                                        new_sprite.setTexture(_textureStreamer.Get(TextureStreamer::TextureType::WhitePawn));
-                                        //sf::Sprite pawn_sprite(_textureStreamer.Get(TextureStreamer::TextureType::WhitePawn));
-                                } else {
-                                        //sf::Sprite pawn_sprite(_textureStreamer.Get(TextureStreamer::TextureType::BlackPawn));
-                                        new_sprite.setTexture(_textureStreamer.Get(TextureStreamer::TextureType::BlackPawn));
-                                }
-
-                                auto size = new_sprite.getLocalBounds().size;
-                                new_sprite.setScale({ 50.f / size.x, 50.f / size.y });
-                                new_sprite.setPosition({ 55.f * i, 55.f * j });
-
-                                _renderingPawnSprites.push_back(new_sprite);
-                        }
-                }
-        }*/
-
 }
 
 void Renderer::Render() {
@@ -124,28 +78,22 @@ void Renderer::Render() {
                 for (int i = 0; i < data.size(); ++i) {
                         for (int j = 0; j < data[i].size(); ++j) {
                                 if (data[i][j] == 1 || data[i][j] == 2 || data[i][j] == 4 || data[i][j] == 5) {
-                                        sf::Sprite new_sprite(_textureStreamer.Get(TextureStreamer::TextureType::BlackPawn));
+                                        sf::Sprite new_sprite(_textureStreamer[TextureType::BlackPawn]);
 
                                         if (data[i][j] == 1 || data[i][j] == 4) {
-                                                new_sprite.setTexture(_textureStreamer.Get(TextureStreamer::TextureType::WhitePawn));
-                                                //sf::Sprite pawn_sprite(_textureStreamer.Get(TextureStreamer::TextureType::WhitePawn));
+                                                new_sprite.setTexture(_textureStreamer[TextureType::WhitePawn]);
                                         } 
 
                                         auto size = new_sprite.getLocalBounds().size;
-                                        new_sprite.setScale({ 50.f / size.x, 50.f / size.y });
-                                        new_sprite.setPosition({ 55.f * i, 55.f * j });
+                                        new_sprite.setScale({ SlotSize / size.x, SlotSize / size.y });
+                                        new_sprite.setPosition({ SlotSizeWithPadding * i, SlotSizeWithPadding * j });
 
-                                        _renderingPawnSprites.push_back(new_sprite);
                                         _renderingPawnMap.insert({{i, j}, new_sprite});
                                 }
                         }
                 }
 
         }
-
-        /*for (const auto& slot_sprite : _renderingSlotSprites) {
-                _window_ptr->draw(slot_sprite);
-        }*/
 
         for (const auto& [index, slot_sprite] : _renderingSlotMap) {
                 _window_ptr->draw(slot_sprite);
@@ -155,19 +103,15 @@ void Renderer::Render() {
                 _window_ptr->draw(pawn_sprite);
         }
 
-        /*for (const auto& pawn_sprite : _renderingPawnSprites) {
-                _window_ptr->draw(pawn_sprite);
-        }*/
-
         _window_ptr->display();
 }
 
-const sf::Texture& Renderer::GetSlotTexture_FlipFlop() {
-        ChangeFlipFlopFlag();
+const sf::Texture& Renderer::getSlotTexture_FlipFlop() {
+        reverseFlipFlopFlag();
 
         if (_flipFlopFlag) {
-                return _textureStreamer.Get(TextureStreamer::TextureType::WhiteSlot);
+                return _textureStreamer[TextureType::WhiteSlot];
         }
 
-        return _textureStreamer.Get(TextureStreamer::TextureType::BlackSlot);
+        return _textureStreamer[TextureType::BlackSlot];
 }
