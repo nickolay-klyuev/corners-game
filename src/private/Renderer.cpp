@@ -10,26 +10,25 @@ Renderer::Renderer(GameField* gameField_ptr, sf::RenderWindow* window_ptr)
                 reverseFlipFlopFlag();
 
                 for (int j = 0; j < data[i].size(); ++j) {
-                        sf::Sprite new_sprite(getSlotTexture_FlipFlop());
+                        sf::Sprite new_slot_sprite(getSlotTexture_FlipFlop());
 
-                        auto sprite_size = new_sprite.getLocalBounds().size;
-                        new_sprite.setScale({ SlotSize / sprite_size.x, SlotSize / sprite_size.y });
-                        new_sprite.setPosition({SlotSizeWithPadding * i, SlotSizeWithPadding * j });
+                        auto sprite_size = new_slot_sprite.getLocalBounds().size;
+                        new_slot_sprite.setScale({ SlotSize / sprite_size.x, SlotSize / sprite_size.y });
+                        new_slot_sprite.setPosition({SlotSizeWithPadding * i, SlotSizeWithPadding * j });
 
-                        _renderingSlotMap.insert({{i, j}, new_sprite});
+                        _renderingSlotMap.insert({{i, j}, new_slot_sprite});
 
                         if (data[i][j] != SlotType::Empty) {
+                                sf::Sprite new_pawn_sprite(_textureStreamer[TextureType::BlackPawn]);
                                 if (data[i][j] == SlotType::WhitePawn) {
-                                        new_sprite.setTexture(_textureStreamer[TextureType::WhitePawn]);
-                                } else {
-                                        new_sprite.setTexture(_textureStreamer[TextureType::BlackPawn]);
+                                        new_pawn_sprite.setTexture(_textureStreamer[TextureType::WhitePawn]);
                                 }
 
-                                auto size = new_sprite.getLocalBounds().size;
-                                new_sprite.setScale({ SlotSize / size.x, SlotSize / size.y });
-                                new_sprite.setPosition({ SlotSizeWithPadding * i, SlotSizeWithPadding * j });
+                                auto size = new_pawn_sprite.getLocalBounds().size;
+                                new_pawn_sprite.setScale({ SlotSize / size.x, SlotSize / size.y });
+                                new_pawn_sprite.setPosition({ SlotSizeWithPadding * i, SlotSizeWithPadding * j });
 
-                                _renderingPawnMap.insert({{i, j}, new_sprite});
+                                _renderingPawnMap.insert({{i, j}, new_pawn_sprite});
                         }
                 }
         }
@@ -47,7 +46,7 @@ void Renderer::Render() {
                                 if (_renderingPawnMap.find({ i, j }) == _renderingPawnMap.end()) {
                                         auto& slot = _renderingSlotMap.at({ i, j });
 
-                                        if (data[i][j] == 3) {
+                                        if (data[i][j] == SlotType::MoveAllowed) {
                                                 slot.setColor(sf::Color::Green);
                                         }
                                         else {
@@ -59,9 +58,9 @@ void Renderer::Render() {
 
                                 auto& pawn = _renderingPawnMap.at({ i, j });
 
-                                if (data[i][j] == 1 || data[i][j] == 2) {
+                                if (data[i][j] == SlotType::WhitePawn || data[i][j] == SlotType::BlackPawn) {
                                         pawn.setColor(sf::Color::White);
-                                } else if (data[i][j] == 4 || data[i][j] == 5) {
+                                } else if (data[i][j] ==  SlotType::WhitePawnSelected || data[i][j] == SlotType::BlackPawnSelected) {
                                         pawn.setColor(sf::Color::Blue);
                                 }
                         }
@@ -77,10 +76,12 @@ void Renderer::Render() {
 
                 for (int i = 0; i < data.size(); ++i) {
                         for (int j = 0; j < data[i].size(); ++j) {
-                                if (data[i][j] == 1 || data[i][j] == 2 || data[i][j] == 4 || data[i][j] == 5) {
+                                if (data[i][j] == SlotType::WhitePawn || data[i][j] == SlotType::BlackPawn 
+                                        || data[i][j] == SlotType::WhitePawnSelected || data[i][j] == SlotType::BlackPawnSelected) {
+                                        
                                         sf::Sprite new_sprite(_textureStreamer[TextureType::BlackPawn]);
 
-                                        if (data[i][j] == 1 || data[i][j] == 4) {
+                                        if (data[i][j] == SlotType::WhitePawn || data[i][j] == SlotType::WhitePawnSelected) {
                                                 new_sprite.setTexture(_textureStreamer[TextureType::WhitePawn]);
                                         } 
 

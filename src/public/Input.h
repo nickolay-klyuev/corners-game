@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include <SFML/Graphics.hpp>
 
 #include "Renderer.h"
@@ -16,6 +18,9 @@ public:
         ~Input() = default;
 
         void OnMouseLeftClicked(sf::Vector2f);
+        void OnAIMoveFinished();
+
+        std::function<void()> PlayerInputFinishedFunc;
 
         bool IsWaitingForEnemyMove = false;
 };

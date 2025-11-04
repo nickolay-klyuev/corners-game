@@ -5,7 +5,6 @@
 
 #include "GameField.h"
 #include "Renderer.h"
-#include "TextureStreamer.h"
 #include "Input.h"
 #include "AIEnemy.h"
 
@@ -17,7 +16,10 @@ int main(int argc, char const *argv[]) {
         auto game_field_ptr = std::make_unique<GameField>();
         auto renderer_ptr = std::make_unique<Renderer>(game_field_ptr.get(), &window);
         auto input_ptr = std::make_unique<Input>(renderer_ptr.get(), game_field_ptr.get());
-        auto ai_enemy_ptr = std::make_unique<AIEnemy>(input_ptr.get(), game_field_ptr.get());
+        auto ai_enemy_ptr = std::make_unique<AIEnemy>(game_field_ptr.get());
+
+        input_ptr->PlayerInputFinishedFunc = std::bind(&AIEnemy::StartMove, ai_enemy_ptr.get());
+        ai_enemy_ptr->AIMoveFinishedFunc = std::bind(&Input::OnAIMoveFinished, input_ptr.get());
 
         while (window.isOpen()) {
                 while (const std::optional event = window.pollEvent()) {
@@ -27,8 +29,6 @@ int main(int argc, char const *argv[]) {
                                 input_ptr->OnMouseLeftClicked(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
                         }
                 }
-
-                ai_enemy_ptr->Update();
 
                 renderer_ptr->Render();
         }

@@ -4,21 +4,18 @@
 #include <thread>
 #include <chrono>
 
-void AIEnemy:: Update() {
-        if (_moveStarted) {
+void AIEnemy:: StartMove() {
+        if (_isMakingMove) {
                 return;
         }
 
-        if (_input_ptr->IsWaitingForEnemyMove) {
-                
-                _moveStarted = true;
+        _isMakingMove = true;
 
-                std::thread makeMoveDelay(&AIEnemy::MakeMove, this);
-                makeMoveDelay.detach();
-        }
+        std::thread makeMoveDelay(&AIEnemy::Move, this);
+        makeMoveDelay.detach();
 }
 
-void AIEnemy::MakeMove() {
+void AIEnemy::Move() {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         auto indexes = _gameField_ptr->GetWhitesIndexes();
@@ -26,7 +23,6 @@ void AIEnemy::MakeMove() {
         auto select = indexes[getRandomInt(0, indexes.size() - 1)];
 
         _gameField_ptr->Select(select);
-        _gameField_ptr->Log();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
@@ -44,8 +40,11 @@ void AIEnemy::MakeMove() {
                 }
         }
 
-        _moveStarted = false;
-        _input_ptr->IsWaitingForEnemyMove = false;
+        _isMakingMove = false;
+
+        if (AIMoveFinishedFunc) {
+                AIMoveFinishedFunc();
+        }
 }
 
 int AIEnemy::getRandomInt(int min, int max) const {

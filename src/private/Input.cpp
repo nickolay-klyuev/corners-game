@@ -18,6 +18,15 @@ void Input::OnMouseLeftClicked(sf::Vector2f mouse_position) {
         for (const auto& [index, slot_sprite] : _renderer_ptr->GetRenderingSlotMap()) {
                 if (slot_sprite.getGlobalBounds().contains(mouse_position)) {
                         IsWaitingForEnemyMove = _gameField_ptr->MoveIfPossible(index);
+                        
+                        if (IsWaitingForEnemyMove && PlayerInputFinishedFunc) {
+                                PlayerInputFinishedFunc();
+                        }
                 }
         }
+
+}
+
+void Input::OnAIMoveFinished() {
+        IsWaitingForEnemyMove = false;
 }

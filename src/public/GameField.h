@@ -64,7 +64,6 @@ public:
 
         void Select(std::pair<int, int> index);
 
-        bool CanBeMovedSomewhere(std::pair<int, int> index) const;
         bool CanBeMovedRightBottom(std::pair<int, int> index) const;
         bool CanBeMovedRight(std::pair<int, int> index) const;
         bool CanBeMovedBottom(std::pair<int, int> index) const;
@@ -72,4 +71,8 @@ public:
         bool MoveIfPossible(std::pair<int, int> index);
 
         void Log() const;
+
+private:
+        void markSlotsForMove(Direction, std::pair<int, int> index, bool jump_check = false);
+        bool isEmptySlot(Direction, std::pair<int, int>) const;
 };

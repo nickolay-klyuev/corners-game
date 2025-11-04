@@ -1,22 +1,24 @@
 #pragma once
 
+#include <functional>
+
 #include "Input.h"
 #include "GameField.h"
 
 class AIEnemy {
-        Input* _input_ptr = nullptr;
         GameField* _gameField_ptr = nullptr;
 
-        bool _moveStarted = false;
+        bool _isMakingMove = false;
 
 public:
         AIEnemy() = delete;
-        AIEnemy(Input* input, GameField* gameField)
-                : _input_ptr(input), _gameField_ptr(gameField) {}
+        AIEnemy(GameField* gameField): _gameField_ptr(gameField) {}
         ~AIEnemy() = default;
 
-        void Update();
-        void MakeMove();
+        void StartMove();
+        void Move();
+
+        std::function<void()> AIMoveFinishedFunc;
 
 private:
         int getRandomInt(int min, int max) const;

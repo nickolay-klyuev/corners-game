@@ -54,43 +54,25 @@ void GameField::Select(std::pair<int, int> index) {
 
                 _selected = index;
 
-                if (index.first < Size - 1 && _data[index.first + 1][index.second] == 0) {
-                        _data[index.first + 1][index.second] = SlotType::MoveAllowed;
-                }
-
-                if (index.first > 0 && _data[index.first - 1][index.second] == 0) {
-                        _data[index.first - 1][index.second] = SlotType::MoveAllowed;
-                }
-
-                if (index.second < Size - 1 && _data[index.first][index.second + 1] == 0) {
-                        _data[index.first][index.second + 1] = SlotType::MoveAllowed;
-                }
-
-                if (index.second > 0 && _data[index.first][index.second - 1] == 0) {
-                        _data[index.first][index.second - 1] = SlotType::MoveAllowed;
-                }
+                markSlotsForMove(Direction::Right, index);
+                markSlotsForMove(Direction::Left, index);
+                markSlotsForMove(Direction::Bottom, index);
+                markSlotsForMove(Direction::Top, index);
         }
 
 }
 
-bool GameField::CanBeMovedSomewhere(std::pair<int, int> index) const {
-        return (index.first < 7 && _data[index.first + 1][index.second]) == 0 ||
-                (index.first > 0 && _data[index.first - 1][index.second]) == 0 ||
-                (index.second < 7 && _data[index.first][index.second + 1]) == 0 ||
-                (index.second > 0 && _data[index.first][index.second - 1]) == 0;
-}
-
 bool GameField::CanBeMovedRightBottom(std::pair<int, int> index) const {
-        return (index.first < 7 && _data[index.first + 1][index.second]) == 0 ||
-                (index.second < 7 && _data[index.first][index.second + 1] == 0);
+        return (index.first < Size - 1 && _data[index.first + 1][index.second]) == SlotType::Empty ||
+                (index.second < Size - 1 && _data[index.first][index.second + 1] == SlotType::Empty);
 }
 
 bool GameField::CanBeMovedRight(std::pair<int, int> index) const {
-        return index.first < 7 && (_data[index.first + 1][index.second] == 3);
+        return index.first < Size - 1 && (_data[index.first + 1][index.second] == SlotType::MoveAllowed);
 }
 
 bool GameField::CanBeMovedBottom(std::pair<int, int> index) const {
-        return index.second < 7 && (_data[index.first][index.second + 1] == 3);
+        return index.second < Size - 1 && (_data[index.first][index.second + 1] == SlotType::MoveAllowed);
 }
 
 bool GameField::MoveIfPossible(std::pair<int, int> index) {
@@ -114,5 +96,91 @@ void GameField::Log() const {
                         std::cout << slot << " ";
                 }
                 std::cout << '\n';
+        }
+}
+
+void GameField::markSlotsForMove(Direction direction, std::pair<int, int> index, bool jump_check) {
+
+        switch (direction) {
+                case Direction::Right:
+
+                        if (index.first < Size - 1) {
+                                if (!jump_check && isEmptySlot(direction, index)) {
+                                        _data[index.first + 1][index.second] = SlotType::MoveAllowed;
+                                        return;
+                                }
+                                
+                                if (!isEmptySlot(direction, index) && isEmptySlot(direction, { index.first + 1, index.second })) {
+                                        _data[index.first + 2][index.second] = SlotType::MoveAllowed;
+                                        markSlotsForMove(direction, { index.first + 2, index.second }, true);
+                                }
+                        }
+
+                        break;
+
+                case Direction::Left:
+
+                        if (index.first > 0) {
+                                if (!jump_check && isEmptySlot(direction, index)) {
+                                        _data[index.first - 1][index.second] = SlotType::MoveAllowed;
+                                        return;
+                                }
+                                
+                                if (!isEmptySlot(direction, index) && isEmptySlot(direction, { index.first - 1, index.second })) {
+                                        _data[index.first - 2][index.second] = SlotType::MoveAllowed;
+                                        markSlotsForMove(direction, { index.first - 2, index.second }, true);
+                                }
+                        }
+
+                        break;
+                
+                case Direction::Bottom:
+
+                        if (index.second < Size - 1) {
+                                if (!jump_check && isEmptySlot(direction, index)) {
+                                        _data[index.first][index.second + 1] = SlotType::MoveAllowed;
+                                        return;
+                                }
+                                
+                                if (!isEmptySlot(direction, index) && isEmptySlot(direction, { index.first, index.second + 1 })) {
+                                        _data[index.first][index.second + 2] = SlotType::MoveAllowed;
+                                        markSlotsForMove(direction, { index.first, index.second + 2 }, true);
+                                }
+                        }
+
+                        break;
+
+                case Direction::Top:
+
+                        if (index.second > 0) {
+                                if (!jump_check && isEmptySlot(direction, index)) {
+                                        _data[index.first][index.second - 1] = SlotType::MoveAllowed;
+                                        return;
+                                }
+                                
+                                if (!isEmptySlot(direction, index) && isEmptySlot(direction, { index.first, index.second - 1 })) {
+                                        _data[index.first][index.second - 2] = SlotType::MoveAllowed;
+                                        markSlotsForMove(direction, { index.first, index.second - 2 }, true);
+                                }
+                        }
+
+                default:
+                        break;
+        }
+}
+
+bool GameField::isEmptySlot(Direction direction, std::pair<int, int> index) const {
+
+        switch (direction) {
+                case Direction::Right:
+                        return index.first < Size - 1 && _data[index.first + 1][index.second] == SlotType::Empty;
+                case Direction::Left:
+                        return index.first > 0 && _data[index.first - 1][index.second] == SlotType::Empty;
+                case Direction::Bottom:
+                        return index.second < Size - 1 && _data[index.first][index.second + 1] == SlotType::Empty;
+                case Direction::Top:
+                        return index.second > 0 && _data[index.first][index.second - 1] == SlotType::Empty;
+                default:
+                        return false;
         }
 }
